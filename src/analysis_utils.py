@@ -69,7 +69,7 @@ def pipeline_processing(spark, period_dict, fp=10, exp_rr=0.15, symbol_list=['_a
     growth_df = calculate_growth_rates(fundamental_df, agg_func='mean')
     growth_df = calculate_sticker_price(growth_df, fp=fp, exp_rr=exp_rr)
     screener_df = find_stocks_below_mos(spark, price_df, growth_df)
-    return company_info_df, fundamental_df, growth_df, screener_df
+    return price_df, company_info_df, fundamental_df, growth_df, screener_df
 
 # def OLD_pipeline(spark, period_dict, fp=10, exp_rr=0.15):
 #     # create company info_df
