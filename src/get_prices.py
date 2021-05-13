@@ -17,6 +17,7 @@ def download_ticker_prices(symbol_list, period='max'):
     """   
     symbol_count = len(symbol_list) 
     is_valid = [False] * len(symbol_list)
+    print('Start download of historic price data')
     # force silencing of verbose API
     with open(os.devnull, 'w') as devnull:
         with contextlib.redirect_stdout(devnull):
@@ -75,7 +76,7 @@ def calculate_annual_price(spark, price_df, time_period):
                                 )
     # filter for month December (==12)
     price_df = price_df.filter(price_df['month']==12)
-    # group by Ticker and aggregate on median
+    # group by Ticker and aggregate on mean
     ann_price_df = price_df.select('year', 'Ticker', 'Low')\
                             .groupBy('year', 'Ticker')\
                             .agg(F.mean('Low')\

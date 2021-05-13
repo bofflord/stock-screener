@@ -38,14 +38,18 @@ def pipeline_staging():
     company_info_df = load_company_info_from_disk(symbol_list=symbol_list)
     symbol_list = company_info_df['ticker'].unique().tolist()
     
-    # download peer data from disk
+    # download peer data to disk
     #peer_df = download_peer_data(symbol_list)
     
-    # TODO: extract fundamental data from Simfin API to staging tables
+    # extract fundamental data from Simfin API to fundamental df
+    fundamental_df = combine_fundamentals(symbol_list)
+    # reduce symbol_list to those where fundamental data  is available
+    symbol_list = fundamental_df['Ticker'].unique().tolist()
     
     # Download historic stock prices for symbols
     download_ticker_prices(symbol_list)
-    
+    print('Staging pipeline run complete.')
+    return symbol_list
 
 def pipeline_processing(spark, period_dict, fp=10, exp_rr=0.15, symbol_list=['_all']):
     # create company info_df
@@ -57,10 +61,17 @@ def pipeline_processing(spark, period_dict, fp=10, exp_rr=0.15, symbol_list=['_a
                                         how='left',
                                         validate='1:1')
     # combine fundamentals and calculate top5 kpis
-    fundamental_df = combine_fundamentals(symbol_list, period_dict)
+    fundamental_df = combine_fundamentals(symbol_list)
+    # filter on relevant time period
+    fundamental_df = filter_df(fundamental_df, period_dict)
     fundamental_df = calculate_top5_kpi(fundamental_df)
+    # reduce symbol_list to those where fundamental data is available
+    symbol_list = fundamental_df['Ticker'].unique().tolist()
     # load ticker prices for symbols
     price_df = load_ticker_prices(spark, symbol_list)
+    # restrict symbol_list to those with available price data
+    symbol_list = price_df.select('Ticker').distinct().toPandas()['Ticker'].tolist()
+    fundamental_df = filter_symbols(fundamental_df, symbol_list)
     # calculate annual price from historic price data
     ann_price_df = calculate_annual_price(spark, price_df, period_dict)
     # calculate annual price per earnings
