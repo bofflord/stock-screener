@@ -1,10 +1,10 @@
 import pandas as pd
 
 def get_stock_symbol_list():
-    """[summary]
+    """[Retrieve official symbol lists for all NASDAQ traded stocks]
 
     Returns:
-        [type]: [description]
+        [list]: [filtered list of relevant stock symbols]
     """    
     # get ticket symbol list
     symbol_df = pd.read_csv("http://www.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt", sep='|')

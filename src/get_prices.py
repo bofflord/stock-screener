@@ -38,14 +38,14 @@ def download_ticker_prices(symbol_list, period='max'):
     print('Total number of valid symbols downloaded = {}'.format(sum(is_valid)))
     
 def load_ticker_prices(spark, symbol_list):
-    """[summary]
+    """Load ticker prices from disk to Spark Dataframe
 
     Args:
-        spark ([type]): [description]
-        symbol_list ([type]): [description]
+        spark ([SparkContext]): [spark context]
+        symbol_list ([list]): [List of ticker symbols]
 
     Returns:
-        [type]: [description]
+        [Spark Dataframe]: Dataframe with price data
     """    
     file_list = glob.glob('../data/3_prices/*.csv')
     file_list = [file_path for file_path in file_list\
@@ -65,6 +65,16 @@ def load_ticker_prices(spark, symbol_list):
     return df
 
 def calculate_annual_price(spark, price_df, time_period):
+    """Calculate annual price from daily price data. Definition: mean low price in month December.
+
+    Args:
+        spark ([SparkContect]): [description]
+        price_df ([Spark Dataframe]): historic daily price data
+        time_period ([dict]): dictionary with keys start_date and end_date which stores these in int format.
+
+    Returns:
+        [Pandas Dataframe]: Dataframe with annual price data
+    """    
     # create column month
     price_df = price_df.withColumn('month', F.month(price_df['Date']))
     # create column year
@@ -87,15 +97,15 @@ def calculate_annual_price(spark, price_df, time_period):
     return ann_price_df
 
 def find_stocks_below_mos(spark, price_df, growth_df):
-    """[summary]
+    """Return screener results of stocks whose intrinsic value is below market price.
 
     Args:
-        spark ([type]): [description]
-        price_df ([type]): [description]
-        growth_df ([type]): [description]
+        spark ([SparkContext]): context of current Spark session
+        price_df ([Pyspark Dataframe]): price dataset
+        growth_df ([Pandas Dataframe]): growth kpi dataset
 
     Returns:
-        [type]: [description]
+        [Pandas Dataframe]: screener results table
     """    
     # price_df : group by Ticker and filter price_df for max date, keep low price
     curr_price_df = price_df.select('Date', 'Ticker')\
