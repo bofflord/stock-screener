@@ -1,0 +1,142 @@
+table	column	dtype	source	description
+fundamental	Ticker	object	SimFin API 	primary key. Symbol to identify stock.
+fundamental	Report Date_is	datetime64[ns]	SimFin API 	primary key. Date of annual financial report
+fundamental	SimFinId	int64	SimFin API 	ID assigned to Stock within SimFin API
+fundamental	Currency	object	SimFin API 	Currency in which stock is traded.
+fundamental	Fiscal Year	int64	SimFin API 	Year of report.
+fundamental	Fiscal Period_is	object	SimFin API 	Report period.
+fundamental	Publish Date_is	datetime64[ns]	SimFin API 	see column title
+fundamental	Restated Date_is	datetime64[ns]	SimFin API 	see column title
+fundamental	Shares (Basic)_is	float64	SimFin API 	see column title
+fundamental	Shares (Diluted)_is	float64	SimFin API 	see column title
+fundamental	Revenue	float64	SimFin API 	"equal to KPI ""Sales Growht Rate"""
+fundamental	Cost of Revenue	float64	SimFin API 	see column title
+fundamental	Gross Profit	float64	SimFin API 	see column title
+fundamental	Operating Expenses	float64	SimFin API 	see column title
+fundamental	Selling	 General & Administrative	SimFin API 	see column title
+fundamental	Research & Development	float64	SimFin API 	see column title
+fundamental	Depreciation & Amortization_is	float64	SimFin API 	see column title
+fundamental	Operating Income (Loss)	int64	SimFin API 	see column title
+fundamental	Non-Operating Income (Loss)	float64	SimFin API 	see column title
+fundamental	Interest Expense	 Net	SimFin API 	see column title
+fundamental	Pretax Income (Loss)	 Adj.	SimFin API 	see column title
+fundamental	Abnormal Gains (Losses)	float64	SimFin API 	see column title
+fundamental	Pretax Income (Loss)	int64	SimFin API 	see column title
+fundamental	Income Tax (Expense) Benefit	 Net	SimFin API 	see column title
+fundamental	Income (Loss) from Continuing Operations	int64	SimFin API 	see column title
+fundamental	Net Extraordinary Gains (Losses)	float64	SimFin API 	see column title
+fundamental	Net Income	int64	SimFin API 	see column title
+fundamental	Net Income (Common)	int64	SimFin API 	see column title
+fundamental	Report Date_cf	datetime64[ns]	SimFin API 	see column title
+fundamental	Fiscal Period_cf	object	SimFin API 	see column title
+fundamental	Publish Date_cf	datetime64[ns]	SimFin API 	see column title
+fundamental	Restated Date_cf	datetime64[ns]	SimFin API 	see column title
+fundamental	Shares (Basic)_cf	float64	SimFin API 	see column title
+fundamental	Shares (Diluted)_cf	float64	SimFin API 	see column title
+fundamental	Net Income/Starting Line	float64	SimFin API 	see column title
+fundamental	Depreciation & Amortization_cf	float64	SimFin API 	see column title
+fundamental	Non-Cash Items	float64	SimFin API 	see column title
+fundamental	Change in Working Capital	float64	SimFin API 	see column title
+fundamental	Change in Accounts Receivable	float64	SimFin API 	see column title
+fundamental	Change in Inventories	float64	SimFin API 	see column title
+fundamental	Change in Accounts Payable	float64	SimFin API 	see column title
+fundamental	Change in Other	float64	SimFin API 	see column title
+fundamental	Net Cash from Operating Activities	int64	SimFin API 	see column title
+fundamental	Change in Fixed Assets & Intangibles	float64	SimFin API 	see column title
+fundamental	Net Change in Long Term Investment	float64	SimFin API 	see column title
+fundamental	Net Cash from Acquisitions & Divestitures	float64	SimFin API 	see column title
+fundamental	Net Cash from Investing Activities	float64	SimFin API 	see column title
+fundamental	Dividends Paid	float64	SimFin API 	see column title
+fundamental	Cash from (Repayment of) Debt	float64	SimFin API 	see column title
+fundamental	Cash from (Repurchase of) Equity	float64	SimFin API 	see column title
+fundamental	Net Cash from Financing Activities	float64	SimFin API 	see column title
+fundamental	Net Change in Cash	int64	SimFin API 	see column title
+fundamental	Report Date	datetime64[ns]	SimFin API 	see column title
+fundamental	Fiscal Period	object	SimFin API 	see column title
+fundamental	Publish Date	datetime64[ns]	SimFin API 	see column title
+fundamental	Restated Date	datetime64[ns]	SimFin API 	see column title
+fundamental	Shares (Basic)	float64	SimFin API 	see column title
+fundamental	Shares (Diluted)	float64	SimFin API 	see column title
+fundamental	Cash, Cash Equivalents & Short Term Investments	float64	SimFin API 	see column title
+fundamental	Accounts & Notes Receivable	float64	SimFin API 	see column title
+fundamental	Inventories	float64	SimFin API 	see column title
+fundamental	Total Current Assets	float64	SimFin API 	see column title
+fundamental	Property, Plant & Equipment	float64	SimFin API 	see column title
+fundamental	Long Term Investments & Receivables	float64	SimFin API 	see column title
+fundamental	Other Long Term Assets	float64	SimFin API 	see column title
+fundamental	Total Noncurrent Assets	float64	SimFin API 	see column title
+fundamental	Total Assets	int64	SimFin API 	see column title
+fundamental	Payables & Accruals	float64	SimFin API 	see column title
+fundamental	Short Term Debt	float64	SimFin API 	see column title
+fundamental	Total Current Liabilities	float64	SimFin API 	see column title
+fundamental	Long Term Debt	float64	SimFin API 	see column title
+fundamental	Total Noncurrent Liabilities	float64	SimFin API 	see column title
+fundamental	Total Liabilities	int64	SimFin API 	see column title
+fundamental	Share Capital & Additional Paid-In Capital	float64	SimFin API 	see column title
+fundamental	Treasury Stock	float64	SimFin API 	see column title
+fundamental	Retained Earnings	float64	SimFin API 	see column title
+fundamental	Total Equity	float64	SimFin API 	see column title
+fundamental	Total Liabilities & Equity	int64	SimFin API 	see column title
+fundamental	Dividends Paid_clean	float64	own calculation, source SimFin API	see column title
+fundamental	roic	float64	own calculation, source SimFin API	Return on Invested Capital
+fundamental	eps	float64	own calculation, source SimFin API	Earnings per share
+fundamental	bvps	float64	own calculation, source SimFin API	Book value per share
+fundamental	fcf	float64	own calculation, source SimFin API	Free cashflow
+fundamental	mean_low_price	float64	own calculation, source Yahoo Finance API	mean low price in month December of a fiscal year.
+fundamental	pe	float64	own calculation, source SimFin API & Yahoo Finance API	Price to earnings ratio
+price	Date	date	Yahoo Finance API	Primary key. Daily trading date.
+price	Ticker	string	Yahoo Finance API	Primary key. Symbol to identify stock.
+price	Open	double	Yahoo Finance API	Opening price on trading day.
+price	High	double	Yahoo Finance API	Highest daily price on trading day.
+price	Low	double	Yahoo Finance API	Lowest daily price on trading day.
+price	Close	double	Yahoo Finance API	Closing price on trading day.
+price	Adj Close	double	Yahoo Finance API	Adjusted closing price on trading day.
+price	Volume	double	Yahoo Finance API	Volume traded on day
+company_info	ticker	object	IEXCloud	Primary key. Symbol to identify stock.
+company_info	company name	object	IEXCloud	see title
+company_info	short name	object	IEXCloud	see title
+company_info	industry	object	IEXCloud	see title
+company_info	description	object	IEXCloud	see title
+company_info	website	object	IEXCloud	see title
+company_info	logo	object	IEXCloud	see title
+company_info	ceo	object	IEXCloud	see title
+company_info	exchange	object	IEXCloud	see title
+company_info	market cap	float64	IEXCloud	Market capitalization on day of call-off (2019)
+company_info	sector	object	IEXCloud	industry sector
+company_info	tag 1	object	IEXCloud	industry tag
+company_info	tag 2	object	IEXCloud	industry tag
+company_info	tag 3	object	IEXCloud	industry tag
+company_info	peer_string	object	IEXCloud	string of peers indicated in ticker symbols.
+company_info	peer_list	object	IEXCloud	same content as peer_string, but list format
+growth	Ticker	object	SimFin API 	Primary key. Symbol to identify stock.
+growth	revenue_gr_curr	float64	own calculation, source SimFin API	Revenue growth of current year (Growth from last to current year)
+growth	eps_curr	float64	own calculation, source SimFin API	Earnings per share of current year
+growth	roic_gr_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of return on invested capital
+growth	revenue_gr_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of revenue
+growth	eps_gr_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of earnings per share
+growth	bvps_gr_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of book value per share
+growth	fcf_gr_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of free cash flow per share
+growth	pe_5yr	float64	own calculation, source SimFin API & Yahoo Finance API	Mean growth rate over last 5 years of price per earnings
+growth	yrs_in_5yr	float64	own calculation, source SimFin API	Indicator on available annual data in last 5 years
+growth	rule1_gr_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of rule #1 indicator
+growth	pe_default_5yr	float64	own calculation, source SimFin API	Mean growth rate over last 5 years of default price per earnings
+growth	roic_gr_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of return on invested capital
+growth	revenue_gr_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of revenue
+growth	eps_gr_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of earnings per share
+growth	bvps_gr_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of book value per share
+growth	fcf_gr_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of free cash flow per share
+growth	pe_10yr	float64	own calculation, source SimFin API & Yahoo Finance API	Mean growth rate over last 10 years of price per earnings
+growth	yrs_in_10yr	int64	own calculation, source SimFin API	Indicator on available annual data in last 5 years
+growth	rule1_gr_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of rule #1 indicator
+growth	pe_default_10yr	float64	own calculation, source SimFin API	Mean growth rate over last 10 years of default price per earnings
+growth	pe_future	float64	own calculation, source SimFin API & Yahoo Finance API	Future price per earnings. Derived via rule #1 sticker price calculation rule.
+growth	eps_future	float64	own calculation, source SimFin API & Yahoo Finance API	Future earnings per share. Derived via rule #1 sticker price calculation rule.
+growth	price_future	float64	own calculation, source SimFin API & Yahoo Finance API	Future price. Derived via rule #1 sticker price calculation rule.
+growth	sticker_price	float64	own calculation, source SimFin API & Yahoo Finance API	Sticker price, intrinsic value of a share today. Derived via rule #1 sticker price calculation rule.
+growth	mos	float64	own calculation, source SimFin API & Yahoo Finance API	Margin of safety, equal to half the sticker price.  Derived via rule #1 sticker price calculation rule.
+screener	Ticker	object	SimFin API 	Primary key. Symbol to identify stock.
+screener	last_date	object	Yahoo Finance API	Last date with price data for ticker.
+screener	last_low_price	float64	Yahoo Finance API	Last low price for ticker
+screener	price_future	float64	own calculation, source SimFin API & Yahoo Finance API	Future price. Derived via rule #1 sticker price calculation rule.
+screener	sticker_price	float64	own calculation, source SimFin API & Yahoo Finance API	Sticker price, intrinsic value of a share today. Derived via rule #1 sticker price calculation rule.
+screener	mos	float64	own calculation, source SimFin API & Yahoo Finance API	Margin of safety, equal to half the sticker price.  Derived via rule #1 sticker price calculation rule.

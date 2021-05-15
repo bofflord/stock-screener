@@ -1,4 +1,4 @@
-Ticker,Peer_string,Peer_list
+ticker,peer_string,peer_list
 A,"TMO,PKI,DHR,TER,NATI,ILMN,AME,BRKR,GE,SPMYY","['TMO', 'PKI', 'DHR', 'TER', 'NATI', 'ILMN', 'AME', 'BRKR', 'GE', 'SPMYY']"
 AA,"ACH,KALU,CENX,NHYDY,AWCMY,BBL,BHP","['ACH', 'KALU', 'CENX', 'NHYDY', 'AWCMY', 'BBL', 'BHP']"
 AAC,"SEM,ACHC,USPH,BICX","['SEM', 'ACHC', 'USPH', 'BICX']"
