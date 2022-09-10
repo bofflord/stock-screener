@@ -10,17 +10,20 @@ import configparser
 import yfinance as yf
 from typing import Union
 
-# %%
+from get_fundamentals import calculate_annual_pe, calculate_growth_rates, calculate_sticker_price, calculate_top5_kpi
+
+# for testing only
+from get_fundamentals import get_current_yr_kpi, calculate_growth_summary
+
 # read api keys from config
 config = configparser.ConfigParser()
-config.read('data/api_keys.cfg')
+config.read('../data/api_keys.cfg')
 print(config.sections())
 # set api_key
 sf.set_api_key(api_key=config['simfin']['api_key'])
 # set data directory
 sf.set_data_dir()
 
-# %%
 # Extract market, industry information data
 markets_df = sf.load(dataset = 'markets')
 industry_df = sf.load(dataset = 'industries')
@@ -39,7 +42,6 @@ companies_df = companies_df.merge(
 )
 companies_df.head(3)
 
-# %%
 # Extract fundamental data
 variant='annual'
 cashflow_df = pd.DataFrame()
@@ -63,7 +65,6 @@ cashflow_df = fund_df_dict['cashflow']
 income_sm_df = fund_df_dict['income']
 balance_st_df = fund_df_dict['balance']
 
-# %%
 def filter_symbols(df, symbol_list):
     df = df[df['Ticker'].isin(symbol_list)]
     return df
@@ -83,18 +84,17 @@ merge_cols = ['Ticker',
                 'SimFinId',
                 'Currency',
                 'Fiscal Year']   
-fundamentals_df = pd.merge(income_sm_df, 
+fundamental_df = pd.merge(income_sm_df, 
                             cashflow_df, 
                             on = merge_cols,
                             suffixes = ('_is', '_cf'),
                             validate='1:1')
-fundamentals_df = pd.merge(fundamentals_df, 
+fundamental_df = pd.merge(fundamental_df, 
                             balance_st_df, 
                             on = merge_cols,
                             validate='1:1')
-fundamentals_df.head(3)
+fundamental_df.head(3)
 
-# %%
 # extract share price data
 price_df = pd.DataFrame()
 for market in markets_df.MarketId.unique():
@@ -102,11 +102,7 @@ for market in markets_df.MarketId.unique():
     market_prices_df['market'] = market
     price_df = price_df.append(market_prices_df, ignore_index=True)
 
-price_df.head(3)
 
-
-
-# %%
 def limit_two_df_to_same_elements_in_one_column(df1: pd.DataFrame, df2: pd.DataFrame, column: str) -> Union[pd.DataFrame, pd.DataFrame]:
     """
     Return transformed copy of two dataframes that share the same elements in a column
@@ -115,18 +111,14 @@ def limit_two_df_to_same_elements_in_one_column(df1: pd.DataFrame, df2: pd.DataF
     df2 = df2[df2[column].isin(df1[column].unique())].reset_index(drop=True)
     return df1, df2
 
-fundamentals_df, price_df = limit_two_df_to_same_elements_in_one_column(
-    fundamentals_df,
+fundamental_df, price_df = limit_two_df_to_same_elements_in_one_column(
+    fundamental_df,
     price_df, 
     'Ticker'
 )
 
-# %%
 # calculate annual prices from historic price data 
 def calculate_annual_price(df: pd.DataFrame) -> pd.DataFrame:
-    '''
-    
-    '''
     df['month'] = pd.to_datetime(df.Date).dt.month
     df['year'] = pd.to_datetime(df.Date).dt.year
     df = df[df.month==12].reset_index(drop=True)
@@ -134,8 +126,63 @@ def calculate_annual_price(df: pd.DataFrame) -> pd.DataFrame:
     df = df.rename(columns={'Low' : 'mean_low_price'})
     return df
 
-calculate_annual_price(price_df).head()
+ann_price_df = calculate_annual_price(price_df)
+
+def print_df_shape(df: pd.DataFrame) -> None:
+    print(f'Shape of df: {df.shape}')
+    ticker_count = df.Ticker.nunique()
+    print(f'Count of unique tickers in df : {ticker_count}')
+
+print('before calculate_top5_kpi')
+print_df_shape(fundamental_df)
+
+# calculate roic, eps, bvps, fcf
+fundamental_df = calculate_top5_kpi(fundamental_df)
+
+print('after calculate_top5_kpi')
+print_df_shape(fundamental_df)
+
+# calculate annual price per earnings
+fundamental_df = calculate_annual_pe(ann_price_df, fundamental_df)
+
+print('after calculate_annual_pe')
+print_df_shape(fundamental_df)
+
+# calculate growth kpi df
+growth_df = calculate_growth_rates(fundamental_df, agg_func='mean')
+
+print('after calculate_growth_rates')
+print_df_shape(growth_df)
+
+# calulate sticker price
+growth_df = calculate_sticker_price(growth_df, fp=10, exp_rr=0.15)
+
+print('after calculate_sticker_price')
+print_df_shape(growth_df)
+
+# extract latest price 
+curr_price_df = price_df[price_df.groupby('Ticker')['Date'].transform('max') == price_df.Date]
+curr_price_df['last_low_price'] = curr_price_df.Low
+growth_df = growth_df.merge(
+    curr_price_df[['Ticker', 'last_low_price']],
+    how = 'left',
+    on = 'Ticker',
+    validate = '1:1'
+)
+growth_df['mos_reached'] = growth_df.mos >= growth_df.last_low_price
+
+# add company and industry info
+growth_df = growth_df.merge(
+    companies_df,
+    how ='left',
+    on = 'Ticker',
+    validate='1:1'
+)
+growth_df.head(3)
 
 # %%
-
-
+# save outputs to parquet format 
+for df, df_name in zip([fundamental_df, growth_df], ['fundamental', 'growth']):
+    current_date = str(pd.to_datetime('today').date())
+    df.to_parquet(f'../data/5_results/{current_date}_{df_name}.parquet')
+    df.to_excel(f'../data/5_results/{current_date}_{df_name}.xlsx', index=False)

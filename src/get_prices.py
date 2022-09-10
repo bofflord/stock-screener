@@ -7,8 +7,9 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType 
 from pyspark.sql.types import ArrayType, DoubleType, DateType
 from pyspark.sql import functions as F
+import time
 
-def download_ticker_prices(symbol_list, period='max'):
+def download_ticker_prices(symbol_list, period='max', download_path='../data/3_prices'):
     """download prices from yfinance for all symbols in a list of the defined period.
 
     Args:
@@ -31,13 +32,14 @@ def download_ticker_prices(symbol_list, period='max'):
                     is_valid[i] = True
                     # insert Ticker column
                     data.insert(0, 'Ticker', s)
-                    data.to_csv('../data/3_prices/{}.csv'.format(s))
+                    data.to_csv((download_path + '/{}.csv').format(s))
+                    time.sleep(1)
                 except:
                     print(f'Error occured at download of symbol {s}')
     print('Ticker price data extracted...')
     print('Total number of valid symbols downloaded = {}'.format(sum(is_valid)))
     
-def load_ticker_prices(spark, symbol_list):
+def load_ticker_prices(spark, symbol_list, source_path='../data/3_prices'):
     """Load ticker prices from disk to Spark Dataframe
 
     Args:
@@ -47,7 +49,7 @@ def load_ticker_prices(spark, symbol_list):
     Returns:
         [Spark Dataframe]: Dataframe with price data
     """    
-    file_list = glob.glob('../data/3_prices/*.csv')
+    file_list = glob.glob(source_path + '/*.csv')
     file_list = [file_path for file_path in file_list\
                     if any(symbol in file_path for symbol in symbol_list)]
     schema = StructType() \
