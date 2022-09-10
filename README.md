@@ -43,6 +43,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import simfin as sf
 import os
+import shutil
 ```
 
 
@@ -64,13 +65,23 @@ df = spark.sql("select 'spark' as hello ")
 df.show()
 ```
 
+    22/02/26 12:01:02 WARN Utils: Your hostname, STH-4 resolves to a loopback address: 127.0.1.1; using 172.28.52.241 instead (on interface eth0)
+    22/02/26 12:01:02 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+    Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+    Setting default log level to "WARN".
+    To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+    22/02/26 12:01:04 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+    [Stage 0:>                                                          (0 + 1) / 1]
+
     +-----+
     |hello|
     +-----+
     |spark|
     +-----+
     
-    
+
+
+                                                                                    
 
 
 ```python
@@ -81,6 +92,7 @@ from get_fundamentals import *
 from get_peers import *
 from get_company_info import *
 from analysis_utils import *
+from pipelines import *
 ```
 
 ## Step 1: Scope the Project and Gather Data
@@ -337,9 +349,9 @@ print('Number of symbol in NASDAQ list after filters: {}'\
     .format(len(symbol_list)))
 ```
 
-    Number of symbol in NASDAQ list before any filters: 10665
-    Number of symbol in NASDAQ list after filters: 8137
-    
+    Number of symbol in NASDAQ list before any filters: 12037
+    Number of symbol in NASDAQ list after filters: 9035
+
 
 #### 2.1.2 Company Info
 From the Pandas Profiling report the following insights can be gathered:
@@ -353,9 +365,9 @@ company_info_df = load_company_info_from_disk(symbol_list)
 company_info_df.head(1)
 ```
 
-    Number of stocks symbols in list: 4545
+    Number of stocks symbols in list: 4243
     Company data loaded from disk...
-    
+
 
 
 
@@ -424,6 +436,28 @@ create_pandas_profiling_report(company_info_df, 'company_info_df')
 ```
 
 
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
+    Pandas profiling report of file company_info_df created
+    
+    
+
+
+
 ```python
 # reduce symbol_list to those where company information is available
 symbol_list = company_info_df['ticker'].unique().tolist()
@@ -455,23 +489,35 @@ peer_df_shape = peer_df.shape
 print(f'Shape of peer_df: {peer_df_shape}')
 ```
 
-    Shape of peer_df: (4536, 3)
-    
+    Shape of peer_df: (4187, 3)
+
 
 
 ```python
 create_pandas_profiling_report(peer_df, 'peer_df')
 ```
 
-    Summarize dataset: 100%|██████████| 12/12 [00:01<00:00, 10.07it/s, Completed]
-    Generate report structure: 100%|██████████| 1/1 [00:00<00:00, 15.26it/s]
-    Render HTML: 100%|██████████| 1/1 [00:00<00:00,  1.18it/s]
-    Export report to file: 100%|██████████| 1/1 [00:00<00:00, 143.00it/s]
+
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
     Pandas profiling report of file peer_df created
     
     
-    
-    
+
 
 
 ```python
@@ -617,6 +663,7 @@ Since the fundamental data is at the core of value investing strategies, the sym
 ```python
 # initialize simfin API
 init_simfin_api()
+sf.set_api_key("63QS1kmWV1MEWj7lnQNJUc9T2C1yN3gu")
 ```
 
 
@@ -634,13 +681,19 @@ balance_st_df = sf.load_balance(variant=variant, market=market)
 balance_st_df = balance_st_df.reset_index()
 ```
 
-    Dataset "us-cashflow-annual" on disk (28 days old).
+    Dataset "us-cashflow-annual" on disk (286 days old).
+    - Downloading ... 100.0%
+    - Extracting zip-file ... Done!
     - Loading from disk ... Done!
-    Dataset "us-income-annual" on disk (28 days old).
+    Dataset "us-income-annual" on disk (286 days old).
+    - Downloading ... 100.0%
+    - Extracting zip-file ... Done!
     - Loading from disk ... Done!
-    Dataset "us-balance-annual" on disk (25 days old).
+    Dataset "us-balance-annual" on disk (264 days old).
+    - Downloading ... 100.0%
+    - Extracting zip-file ... Done!
     - Loading from disk ... Done!
-    
+
 
 
 ```python
@@ -649,6 +702,72 @@ for df, df_name in zip([cashflow_df, income_sm_df, balance_st_df],
                         ['cashflow_df', 'income_sm_df', 'balance_st_df']):
     create_pandas_profiling_report(df, df_name)
 ```
+
+
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
+    Pandas profiling report of file cashflow_df created
+    
+    
+
+
+
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
+    Pandas profiling report of file income_sm_df created
+    
+    
+
+
+
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
+    Pandas profiling report of file balance_st_df created
+    
+    
+
 
 
 ```python
@@ -660,10 +779,10 @@ for df, df_name in zip([cashflow_df, income_sm_df, balance_st_df],
     print(f'Available symbols in data set {df_name}: {available_symbol_cnt} of total {symbol_cnt}')
 ```
 
-    Available symbols in data set cashflow_df: 1660 of total 4545
-    Available symbols in data set income_sm_df: 1660 of total 4545
-    Available symbols in data set balance_st_df: 1661 of total 4545
-    
+    Available symbols in data set cashflow_df: 1714 of total 4243
+    Available symbols in data set income_sm_df: 1714 of total 4243
+    Available symbols in data set balance_st_df: 1714 of total 4243
+
 
 
 ```python
@@ -684,20 +803,20 @@ symbol_list = fundamental_df['Ticker'].unique().tolist()
 fundamental_df.tail(3)
 ```
 
-    Dataset "us-cashflow-annual" on disk (29 days old).
+    Dataset "us-cashflow-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Dataset "us-income-annual" on disk (29 days old).
+    Dataset "us-income-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Dataset "us-balance-annual" on disk (26 days old).
+    Dataset "us-balance-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Symbols with available fundamental data: 1661
+    Symbols with available fundamental data: 1714
     Combined all fundamental data from financial statements to one Dataframe.
     Calculated roic and added it to Dataframe
     Calculated eps and added it to Dataframe
     Calculated bvps and added it to Dataframe
     Calculated fcf and added it to Dataframe
     top5 KPIs added to fundamental data
-    
+
 
 
 
@@ -745,7 +864,7 @@ fundamental_df.tail(3)
   </thead>
   <tbody>
     <tr>
-      <th>14443</th>
+      <th>6634</th>
       <td>ZYNE</td>
       <td>2017-12-31</td>
       <td>901704</td>
@@ -760,7 +879,7 @@ fundamental_df.tail(3)
       <td>138930454.0</td>
       <td>NaN</td>
       <td>-77980866.0</td>
-      <td>60949588.0</td>
+      <td>60949588</td>
       <td>69054309</td>
       <td>0.0</td>
       <td>-0.463582</td>
@@ -769,7 +888,7 @@ fundamental_df.tail(3)
       <td>-25727095.0</td>
     </tr>
     <tr>
-      <th>14444</th>
+      <th>6635</th>
       <td>ZYNE</td>
       <td>2018-12-31</td>
       <td>901704</td>
@@ -777,14 +896,14 @@ fundamental_df.tail(3)
       <td>2018</td>
       <td>FY</td>
       <td>2019-03-11</td>
-      <td>2019-03-11</td>
+      <td>2021-03-10</td>
       <td>15308886.0</td>
       <td>15308886.0</td>
       <td>...</td>
       <td>175493702.0</td>
       <td>NaN</td>
       <td>-117892041.0</td>
-      <td>57601661.0</td>
+      <td>57601661</td>
       <td>67327443</td>
       <td>0.0</td>
       <td>-0.592792</td>
@@ -793,7 +912,7 @@ fundamental_df.tail(3)
       <td>-32110693.0</td>
     </tr>
     <tr>
-      <th>14445</th>
+      <th>6636</th>
       <td>ZYNE</td>
       <td>2019-12-31</td>
       <td>901704</td>
@@ -801,14 +920,14 @@ fundamental_df.tail(3)
       <td>2019</td>
       <td>FY</td>
       <td>2020-03-10</td>
-      <td>2020-03-10</td>
+      <td>2021-03-10</td>
       <td>22000203.0</td>
       <td>22000203.0</td>
       <td>...</td>
       <td>226432367.0</td>
       <td>NaN</td>
       <td>-150835624.0</td>
-      <td>75596743.0</td>
+      <td>75596743</td>
       <td>87764596</td>
       <td>0.0</td>
       <td>-0.375363</td>
@@ -837,8 +956,9 @@ Since the amount of available data is quite large, it is not possible to use Pan
 #download_ticker_prices(symbol_list)
 ```
 
-    Wall time: 0 ns
-    
+    CPU times: user 6 µs, sys: 1e+03 ns, total: 7 µs
+    Wall time: 13.4 µs
+
 
 
 ```python
@@ -848,6 +968,8 @@ price_df = load_ticker_prices(spark, symbol_list)
 # print Schema
 price_df.printSchema()
 ```
+
+                                                                                    
 
     root
      |-- Date: date (nullable = true)
@@ -859,8 +981,9 @@ price_df.printSchema()
      |-- Adj Close: double (nullable = true)
      |-- Volume: double (nullable = true)
     
-    Wall time: 16.8 s
-    
+    CPU times: user 462 ms, sys: 81.1 ms, total: 543 ms
+    Wall time: 17 s
+
 
 
 ```python
@@ -947,9 +1070,14 @@ price_df_row_count = price_df.count()
 print(f'Number of rows in price data: {price_df_row_count}')
 ```
 
-    Number of rows in price data: 9702060
-    Wall time: 13.3 s
-    
+    [Stage 4:========================================================>(60 + 1) / 61]
+
+    Number of rows in price data: 9967746
+    CPU times: user 51.4 ms, sys: 2.76 ms, total: 54.2 ms
+    Wall time: 14.1 s
+
+
+                                                                                    
 
 
 ```python
@@ -957,14 +1085,19 @@ print(f'Number of rows in price data: {price_df_row_count}')
 price_df.select(F.countDistinct('Ticker')).show()
 ```
 
+    [Stage 7:=======================================================> (59 + 2) / 61]
+
     +----------------------+
     |count(DISTINCT Ticker)|
     +----------------------+
-    |                  1655|
+    |                  1716|
     +----------------------+
     
-    Wall time: 37.8 s
-    
+    CPU times: user 54 ms, sys: 8.91 ms, total: 62.9 ms
+    Wall time: 23.7 s
+
+
+                                                                                    
 
 
 ```python
@@ -972,14 +1105,19 @@ price_df.select(F.countDistinct('Ticker')).show()
 price_df.select(F.min('Date'),F.max('Date')).show()
 ```
 
+    [Stage 13:=====================================================>  (58 + 2) / 61]
+
     +----------+----------+
     | min(Date)| max(Date)|
     +----------+----------+
-    |1962-01-02|2021-05-13|
+    |1962-01-02|2021-06-04|
     +----------+----------+
     
-    Wall time: 21.2 s
-    
+    CPU times: user 57.8 ms, sys: 23.3 ms, total: 81.1 ms
+    Wall time: 25.3 s
+
+
+                                                                                    
 
 
 ```python
@@ -990,8 +1128,13 @@ symbol_list = price_df.select('Ticker').distinct().toPandas()['Ticker'].tolist()
 fundamental_df = filter_symbols(fundamental_df, symbol_list)
 ```
 
-    Wall time: 35.4 s
-    
+    [Stage 16:======================================================> (59 + 2) / 61]
+
+    CPU times: user 102 ms, sys: 3.8 ms, total: 106 ms
+    Wall time: 20.5 s
+
+
+                                                                                    
 
 ### 2.4 Growth KPIs
 The growth KPI calculation is calculated from indicators in the fundamental and price data sets. Two more KPIs need to be added to the fundamental data set as prequisite:
@@ -1029,8 +1172,11 @@ ann_price_df = calculate_annual_price(spark, price_df, period_dict)
 ann_price_df.tail(3)
 ```
 
-    Wall time: 1min 55s
-    
+                                                                                    
+
+    CPU times: user 180 ms, sys: 21.7 ms, total: 202 ms
+    Wall time: 36.8 s
+
 
 
 
@@ -1060,19 +1206,19 @@ ann_price_df.tail(3)
   </thead>
   <tbody>
     <tr>
-      <th>14485</th>
+      <th>15010</th>
       <td>2019</td>
       <td>ZUMZ</td>
       <td>31.880000</td>
     </tr>
     <tr>
-      <th>14486</th>
+      <th>15011</th>
       <td>2019</td>
       <td>ZUO</td>
       <td>14.341429</td>
     </tr>
     <tr>
-      <th>14487</th>
+      <th>15012</th>
       <td>2019</td>
       <td>ZYNE</td>
       <td>5.738524</td>
@@ -1136,7 +1282,7 @@ fundamental_df.tail(3)
   </thead>
   <tbody>
     <tr>
-      <th>14387</th>
+      <th>6163</th>
       <td>ZYNE</td>
       <td>2017-12-31</td>
       <td>901704</td>
@@ -1149,7 +1295,7 @@ fundamental_df.tail(3)
       <td>12914814.0</td>
       <td>...</td>
       <td>-77980866.0</td>
-      <td>60949588.0</td>
+      <td>60949588</td>
       <td>69054309</td>
       <td>0.0</td>
       <td>-0.463582</td>
@@ -1160,7 +1306,7 @@ fundamental_df.tail(3)
       <td>-4.816141</td>
     </tr>
     <tr>
-      <th>14388</th>
+      <th>6164</th>
       <td>ZYNE</td>
       <td>2018-12-31</td>
       <td>901704</td>
@@ -1168,12 +1314,12 @@ fundamental_df.tail(3)
       <td>2018</td>
       <td>FY</td>
       <td>2019-03-11</td>
-      <td>2019-03-11</td>
+      <td>2021-03-10</td>
       <td>15308886.0</td>
       <td>15308886.0</td>
       <td>...</td>
       <td>-117892041.0</td>
-      <td>57601661.0</td>
+      <td>57601661</td>
       <td>67327443</td>
       <td>0.0</td>
       <td>-0.592792</td>
@@ -1184,7 +1330,7 @@ fundamental_df.tail(3)
       <td>-1.464001</td>
     </tr>
     <tr>
-      <th>14389</th>
+      <th>6165</th>
       <td>ZYNE</td>
       <td>2019-12-31</td>
       <td>901704</td>
@@ -1192,12 +1338,12 @@ fundamental_df.tail(3)
       <td>2019</td>
       <td>FY</td>
       <td>2020-03-10</td>
-      <td>2020-03-10</td>
+      <td>2021-03-10</td>
       <td>22000203.0</td>
       <td>22000203.0</td>
       <td>...</td>
       <td>-150835624.0</td>
-      <td>75596743.0</td>
+      <td>75596743</td>
       <td>87764596</td>
       <td>0.0</td>
       <td>-0.375363</td>
@@ -1223,7 +1369,7 @@ growth_df.head(3)
 
     Calculated KPI growth from year to year.
     Calculated 5 and 10 year growth rate
-    
+
 
 
 
@@ -1272,75 +1418,75 @@ growth_df.head(3)
   <tbody>
     <tr>
       <th>0</th>
-      <td>A</td>
-      <td>0.050672</td>
-      <td>3.410828</td>
-      <td>1.03</td>
-      <td>0.05</td>
-      <td>0.47</td>
-      <td>-0.00</td>
+      <td>ABMD</td>
+      <td>0.092862</td>
+      <td>4.493437</td>
       <td>0.24</td>
-      <td>38.06</td>
-      <td>5.0</td>
+      <td>0.27</td>
+      <td>0.62</td>
+      <td>0.29</td>
+      <td>0.38</td>
+      <td>70.63</td>
+      <td>5</td>
       <td>...</td>
-      <td>NaN</td>
-      <td>0.54</td>
-      <td>0.01</td>
-      <td>0.26</td>
-      <td>0.07</td>
-      <td>-11.94</td>
-      <td>26.45</td>
-      <td>10</td>
-      <td>0.07</td>
-      <td>14.0</td>
+      <td>58.0</td>
+      <td>0.24</td>
+      <td>0.27</td>
+      <td>0.62</td>
+      <td>0.29</td>
+      <td>0.38</td>
+      <td>70.63</td>
+      <td>5</td>
+      <td>0.29</td>
+      <td>58.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>AA</td>
-      <td>-0.221592</td>
-      <td>-6.081081</td>
-      <td>-2.08</td>
-      <td>0.00</td>
-      <td>-2.01</td>
-      <td>-0.14</td>
-      <td>3.41</td>
-      <td>7.76</td>
-      <td>5.0</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>-2.08</td>
-      <td>0.00</td>
-      <td>-2.01</td>
-      <td>-0.14</td>
-      <td>3.41</td>
-      <td>7.76</td>
+      <td>AGYS</td>
+      <td>0.141400</td>
+      <td>-1466.319459</td>
+      <td>1.11</td>
+      <td>0.08</td>
+      <td>641.86</td>
+      <td>176.47</td>
+      <td>-0.11</td>
+      <td>-28.11</td>
       <td>5</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>...</td>
+      <td>35294.0</td>
+      <td>1.11</td>
+      <td>0.08</td>
+      <td>641.86</td>
+      <td>176.47</td>
+      <td>-0.11</td>
+      <td>-28.11</td>
+      <td>5</td>
+      <td>176.47</td>
+      <td>35294.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>AAL</td>
-      <td>0.027548</td>
-      <td>3.802753</td>
-      <td>0.05</td>
-      <td>0.01</td>
-      <td>0.22</td>
+      <td>AMSC</td>
+      <td>0.135766</td>
+      <td>-0.814677</td>
+      <td>-0.56</td>
+      <td>-0.07</td>
+      <td>-0.84</td>
       <td>-0.09</td>
-      <td>0.09</td>
-      <td>8.91</td>
-      <td>5.0</td>
+      <td>0.08</td>
+      <td>-2.04</td>
+      <td>5</td>
       <td>...</td>
       <td>NaN</td>
+      <td>-0.56</td>
+      <td>-0.07</td>
+      <td>-0.84</td>
+      <td>-0.09</td>
       <td>0.08</td>
-      <td>0.10</td>
-      <td>1.00</td>
-      <td>0.10</td>
-      <td>0.15</td>
-      <td>4.37</td>
-      <td>10</td>
-      <td>0.10</td>
-      <td>20.0</td>
+      <td>-2.04</td>
+      <td>5</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
@@ -1402,47 +1548,47 @@ growth_df.head(3)
   <tbody>
     <tr>
       <th>0</th>
-      <td>A</td>
-      <td>0.050672</td>
-      <td>3.410828</td>
-      <td>1.03</td>
-      <td>0.05</td>
-      <td>0.47</td>
-      <td>-0.00</td>
+      <td>ABMD</td>
+      <td>0.092862</td>
+      <td>4.493437</td>
       <td>0.24</td>
-      <td>38.06</td>
-      <td>5.0</td>
+      <td>0.27</td>
+      <td>0.62</td>
+      <td>0.29</td>
+      <td>0.38</td>
+      <td>70.63</td>
+      <td>5</td>
       <td>...</td>
-      <td>-11.94</td>
-      <td>26.45</td>
-      <td>10</td>
-      <td>0.07</td>
-      <td>14.0</td>
-      <td>38.06</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>0.38</td>
+      <td>70.63</td>
+      <td>5</td>
+      <td>0.29</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>57.342389</td>
+      <td>3325.85855</td>
+      <td>822.101368</td>
+      <td>411.050684</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>AA</td>
-      <td>-0.221592</td>
-      <td>-6.081081</td>
-      <td>-2.08</td>
-      <td>0.00</td>
-      <td>-2.01</td>
-      <td>-0.14</td>
-      <td>3.41</td>
-      <td>7.76</td>
-      <td>5.0</td>
-      <td>...</td>
-      <td>3.41</td>
-      <td>7.76</td>
+      <td>AGYS</td>
+      <td>0.141400</td>
+      <td>-1466.319459</td>
+      <td>1.11</td>
+      <td>0.08</td>
+      <td>641.86</td>
+      <td>176.47</td>
+      <td>-0.11</td>
+      <td>-28.11</td>
       <td>5</td>
+      <td>...</td>
+      <td>-0.11</td>
+      <td>-28.11</td>
+      <td>5</td>
+      <td>176.47</td>
+      <td>35294.0</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>7.76</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1450,23 +1596,23 @@ growth_df.head(3)
     </tr>
     <tr>
       <th>2</th>
-      <td>AAL</td>
-      <td>0.027548</td>
-      <td>3.802753</td>
-      <td>0.05</td>
-      <td>0.01</td>
-      <td>0.22</td>
+      <td>AMSC</td>
+      <td>0.135766</td>
+      <td>-0.814677</td>
+      <td>-0.56</td>
+      <td>-0.07</td>
+      <td>-0.84</td>
       <td>-0.09</td>
-      <td>0.09</td>
-      <td>8.91</td>
-      <td>5.0</td>
+      <td>0.08</td>
+      <td>-2.04</td>
+      <td>5</td>
       <td>...</td>
-      <td>0.15</td>
-      <td>4.37</td>
-      <td>10</td>
-      <td>0.10</td>
-      <td>20.0</td>
-      <td>8.91</td>
+      <td>0.08</td>
+      <td>-2.04</td>
+      <td>5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1485,15 +1631,27 @@ growth_df.head(3)
 create_pandas_profiling_report(growth_df, 'growth_df')
 ```
 
-    Summarize dataset: 100%|██████████| 35/35 [00:01<00:00, 31.54it/s, Completed]
-    Generate report structure: 100%|██████████| 1/1 [00:19<00:00, 19.11s/it]
-    Render HTML: 100%|██████████| 1/1 [00:02<00:00,  2.20s/it]
-    Export report to file: 100%|██████████| 1/1 [00:00<00:00, 46.69it/s]
+
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
     Pandas profiling report of file growth_df created
     
     
-    
-    
+
 
 
 ```python
@@ -1504,26 +1662,26 @@ growth_df['mos'].describe(percentiles=[.03, .04, .05, .1, .2, .3, .4, .5, .6, .7
 
 
 
-    count    3.850000e+02
-    mean     1.100120e+08
-    std      2.157933e+09
-    min      1.407136e-02
-    3%       6.464295e-01
-    4%       8.519934e-01
-    5%       1.139795e+00
-    10%      2.528954e+00
-    20%      5.118623e+00
-    30%      7.921360e+00
-    40%      1.176344e+01
-    50%      1.829152e+01
-    60%      2.736415e+01
-    70%      3.869437e+01
-    80%      6.476641e+01
-    90%      1.356568e+02
-    95%      3.272415e+02
-    98%      2.301118e+03
-    99%      6.794244e+03
-    max      4.234174e+10
+    count       15.000000
+    mean      4501.978221
+    std      17107.361232
+    min          7.385125
+    3%           8.006221
+    4%           8.213253
+    5%           8.420285
+    10%          9.632734
+    20%         19.114548
+    30%         32.349187
+    40%         35.103926
+    50%         38.509094
+    60%         58.976125
+    70%        101.355129
+    80%        144.168356
+    90%        341.378396
+    95%      20189.783863
+    98%      47880.010314
+    99%      57110.085798
+    max      66340.161282
     Name: mos, dtype: float64
 
 
@@ -1531,85 +1689,94 @@ growth_df['mos'].describe(percentiles=[.03, .04, .05, .1, .2, .3, .4, .5, .6, .7
 
 ```python
 # analysis of extreme cases: negative mos
-growth_df[growth_df['mos']<=1e-01].iloc[0]
+# growth_df[growth_df['mos']<=1e-01].iloc[0]
 ```
 
 
+    ---------------------------------------------------------------------------
+
+    IndexError                                Traceback (most recent call last)
+
+    /tmp/ipykernel_14694/379819996.py in <module>
+          1 # analysis of extreme cases: negative mos
+    ----> 2 growth_df[growth_df['mos']<=1e-01].iloc[0]
+    
+
+    ~/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/pandas/core/indexing.py in __getitem__(self, key)
+        929 
+        930             maybe_callable = com.apply_if_callable(key, self.obj)
+    --> 931             return self._getitem_axis(maybe_callable, axis=axis)
+        932 
+        933     def _is_scalar_access(self, key: tuple):
 
 
-    Ticker                    IDT
-    revenue_gr_curr     -0.089385
-    eps_curr             0.005298
-    roic_gr_5yr          0.430000
-    revenue_gr_5yr      -0.030000
-    eps_gr_5yr           0.090000
-    bvps_gr_5yr          0.060000
-    fcf_gr_5yr           2.380000
-    pe_5yr             276.150000
-    yrs_in_5yr           5.000000
-    rule1_gr_5yr         0.060000
-    pe_default_5yr      12.000000
-    roic_gr_10yr         0.080000
-    revenue_gr_10yr      0.010000
-    eps_gr_10yr          0.090000
-    bvps_gr_10yr        -0.030000
-    fcf_gr_10yr          1.560000
-    pe_10yr            160.710000
-    yrs_in_10yr                 9
-    rule1_gr_10yr             NaN
-    pe_default_10yr           NaN
-    pe_future           12.000000
-    eps_future           0.009488
-    price_future         0.113853
-    sticker_price        0.028143
-    mos                  0.014071
-    Name: 687, dtype: object
+    ~/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/pandas/core/indexing.py in _getitem_axis(self, key, axis)
+       1564 
+       1565             # validate the location
+    -> 1566             self._validate_integer(key, axis)
+       1567 
+       1568             return self.obj._ixs(key, axis=axis)
 
+
+    ~/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/pandas/core/indexing.py in _validate_integer(self, key, axis)
+       1498         len_axis = len(self.obj._get_axis(axis))
+       1499         if key >= len_axis or key < -len_axis:
+    -> 1500             raise IndexError("single positional indexer is out-of-bounds")
+       1501 
+       1502     # -------------------------------------------------------------------
+
+
+    IndexError: single positional indexer is out-of-bounds
 
 
 
 ```python
 # analyis of extreme cases: unrealistically high mos
 # analysis of extreme cases: negative mos
-growth_df[growth_df['mos']>=(1.0e10)].iloc[0]
+# growth_df[growth_df['mos']>=(1.0e10)].iloc[0]
 ```
 
 
+    ---------------------------------------------------------------------------
+
+    IndexError                                Traceback (most recent call last)
+
+    /tmp/ipykernel_14694/2404710621.py in <module>
+          1 # analyis of extreme cases: unrealistically high mos
+          2 # analysis of extreme cases: negative mos
+    ----> 3 growth_df[growth_df['mos']>=(1.0e10)].iloc[0]
+    
+
+    ~/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/pandas/core/indexing.py in __getitem__(self, key)
+        929 
+        930             maybe_callable = com.apply_if_callable(key, self.obj)
+    --> 931             return self._getitem_axis(maybe_callable, axis=axis)
+        932 
+        933     def _is_scalar_access(self, key: tuple):
 
 
-    Ticker                            FCPT
-    revenue_gr_curr               0.115557
-    eps_curr                      1.061159
-    roic_gr_5yr                   0.820000
-    revenue_gr_5yr                0.770000
-    eps_gr_5yr                   35.690000
-    bvps_gr_5yr                   9.500000
-    fcf_gr_5yr                    5.400000
-    pe_5yr                       19.820000
-    yrs_in_5yr                    5.000000
-    rule1_gr_5yr                  9.500000
-    pe_default_5yr             1900.000000
-    roic_gr_10yr                  0.820000
-    revenue_gr_10yr               0.770000
-    eps_gr_10yr                  35.690000
-    bvps_gr_10yr                  9.500000
-    fcf_gr_10yr                   5.400000
-    pe_10yr                      19.820000
-    yrs_in_10yr                          6
-    rule1_gr_10yr                 9.500000
-    pe_default_10yr            1900.000000
-    pe_future                    19.820000
-    eps_future          17285161264.943489
-    price_future       342591896271.179932
-    sticker_price       84683477199.524368
-    mos                 42341738599.762184
-    Name: 521, dtype: object
+    ~/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/pandas/core/indexing.py in _getitem_axis(self, key, axis)
+       1564 
+       1565             # validate the location
+    -> 1566             self._validate_integer(key, axis)
+       1567 
+       1568             return self.obj._ixs(key, axis=axis)
 
+
+    ~/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/pandas/core/indexing.py in _validate_integer(self, key, axis)
+       1498         len_axis = len(self.obj._get_axis(axis))
+       1499         if key >= len_axis or key < -len_axis:
+    -> 1500             raise IndexError("single positional indexer is out-of-bounds")
+       1501 
+       1502     # -------------------------------------------------------------------
+
+
+    IndexError: single positional indexer is out-of-bounds
 
 
 
 ```python
-fundamental_df[fundamental_df['Ticker']=='FCPT']
+# fundamental_df[fundamental_df['Ticker']=='FCPT']
 ```
 
 
@@ -1824,8 +1991,13 @@ From the Pandas Profiling report the following insights can be gathered:
 screener_df = find_stocks_below_mos(spark, price_df, growth_df)
 ```
 
-    Wall time: 3min 44s
-    
+    [Stage 35:======================================>                   (2 + 1) / 3]
+
+    CPU times: user 224 ms, sys: 69.3 ms, total: 294 ms
+    Wall time: 1min 39s
+
+
+                                                                                    
 
 
 ```python
@@ -1833,15 +2005,27 @@ screener_df = find_stocks_below_mos(spark, price_df, growth_df)
 create_pandas_profiling_report(screener_df, 'screener_df')
 ```
 
-    Summarize dataset: 100%|██████████| 15/15 [00:00<00:00, 39.47it/s, Completed]
-    Generate report structure: 100%|██████████| 1/1 [00:05<00:00,  5.03s/it]
-    Render HTML: 100%|██████████| 1/1 [00:00<00:00,  3.02it/s]
-    Export report to file: 100%|██████████| 1/1 [00:00<00:00, 93.01it/s]
+
+    Summarize dataset:   0%|          | 0/5 [00:00<?, ?it/s]
+
+
+
+    Generate report structure:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Render HTML:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+
+    Export report to file:   0%|          | 0/1 [00:00<?, ?it/s]
+
+
+    
     Pandas profiling report of file screener_df created
     
     
-    
-    
+
 
 
 ```python
@@ -1852,22 +2036,22 @@ screener_df['mos'].describe(percentiles=[.05, .1, .2, .3, .4, .5, .6, .7, .8, .9
 
 
 
-    count    3.500000e+01
-    mean     1.210132e+09
-    std      7.156996e+09
-    min      8.482203e+00
-    5%       3.232890e+01
-    10%      5.414583e+01
-    20%      1.092650e+02
-    30%      1.730155e+02
-    40%      2.407394e+02
-    50%      3.268411e+02
-    60%      5.024607e+02
-    70%      1.519077e+03
-    80%      2.294095e+03
-    90%      7.103043e+03
-    95%      3.861480e+06
-    max      4.234174e+10
+    count        3.000000
+    mean     22329.360643
+    std      38114.570893
+    min        236.869963
+    5%         254.288035
+    10%        271.706107
+    20%        306.542251
+    30%        341.378396
+    40%        376.214540
+    50%        411.050684
+    60%      13596.872804
+    70%      26782.694923
+    80%      39968.517043
+    90%      53154.339162
+    95%      59747.250222
+    max      66340.161282
     Name: mos, dtype: float64
 
 
@@ -1909,48 +2093,30 @@ screener_df.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>ABMD</td>
-      <td>2021-05-13</td>
-      <td>268.529999</td>
-      <td>2648.558973</td>
-      <td>654.683271</td>
-      <td>327.341636</td>
+      <td>EA</td>
+      <td>2021-06-04</td>
+      <td>142.639999</td>
+      <td>1916.542222</td>
+      <td>473.739926</td>
+      <td>236.869963</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>SABR</td>
-      <td>2021-05-12</td>
-      <td>12.210000</td>
-      <td>11930.046852</td>
-      <td>2948.925125</td>
-      <td>1474.462563</td>
+      <td>ABMD</td>
+      <td>2021-06-04</td>
+      <td>284.260010</td>
+      <td>3325.858550</td>
+      <td>822.101368</td>
+      <td>411.050684</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>EA</td>
-      <td>2021-05-13</td>
-      <td>139.255005</td>
-      <td>1500.221008</td>
-      <td>370.831689</td>
-      <td>185.415845</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>CAR</td>
-      <td>2021-05-13</td>
-      <td>75.760002</td>
-      <td>744.766444</td>
-      <td>184.094875</td>
-      <td>92.047437</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>STE</td>
-      <td>2021-05-13</td>
-      <td>198.210007</td>
-      <td>1959.601932</td>
-      <td>484.383628</td>
-      <td>242.191814</td>
+      <td>RH</td>
+      <td>2021-06-04</td>
+      <td>602.219971</td>
+      <td>536765.905322</td>
+      <td>132680.322563</td>
+      <td>66340.161282</td>
     </tr>
   </tbody>
 </table>
@@ -2015,64 +2181,64 @@ Build the data pipelines to create the data model.
 ```python
 %%time
 # download data from sources to staging folders
-symbol_list = pipeline_staging()
+symbol_list = pipeline_staging(period='10y')
 print('Number of symbols in list after staging pipeline ran: {}'.format(len(symbol_list)))
 ```
 
     Symbol data extracted...
-    total number of symbols traded = 8129
-    Number of stocks symbols in list: 4545
+    total number of symbols traded = 9030
+    Number of stocks symbols in list: 4240
     Company data loaded from disk...
-    Dataset "us-cashflow-annual" on disk (28 days old).
+    Dataset "us-cashflow-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Dataset "us-income-annual" on disk (28 days old).
+    Dataset "us-income-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Dataset "us-balance-annual" on disk (26 days old).
+    Dataset "us-balance-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Symbols with available fundamental data: 1660
+    Symbols with available fundamental data: 1713
     Combined all fundamental data from financial statements to one Dataframe.
     Start download of historic price data
-    Ticker price data extracted...
-    Total number of valid symbols downloaded = 1655
-    Staging pipeline run complete.
-    Number of symbols in list after staging pipeline ran: 1660
-    Wall time: 28min 28s
-    
+
 
 
 ```python
 %%time
 period_dict = {'start_date':2010,
-                'end_date':2019}
+                'end_date':2021}
 
-price_df, company_info_df, fundamental_df, growth_df, screener_df = pipeline_processing(spark, period_dict)
+price_df, company_info_df, fundamental_df, growth_df, screener_df = pipeline_processing(spark, period_dict, agg_func='median')
 
 screener_df.head()
 ```
 
     Number of stocks symbols in list: 6368
     Company data loaded from disk...
-    Dataset "us-cashflow-annual" on disk (30 days old).
-    - Downloading ... 100.0%
-    - Extracting zip-file ... Done!
+    Dataset "us-cashflow-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Dataset "us-income-annual" on disk (30 days old).
-    - Downloading ... 100.0%
-    - Extracting zip-file ... Done!
+    Dataset "us-income-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Dataset "us-balance-annual" on disk (27 days old).
+    Dataset "us-balance-annual" on disk (0 days old).
     - Loading from disk ... Done!
-    Symbols with available fundamental data: 1849
+    Symbols with available fundamental data: 1957
     Combined all fundamental data from financial statements to one Dataframe.
     Calculated roic and added it to Dataframe
     Calculated eps and added it to Dataframe
     Calculated bvps and added it to Dataframe
     Calculated fcf and added it to Dataframe
     top5 KPIs added to fundamental data
+
+
+                                                                                    
+
     Calculated KPI growth from year to year.
     Calculated 5 and 10 year growth rate
-    Wall time: 6min 30s
-    
+
+
+                                                                                    
+
+    CPU times: user 4.17 s, sys: 451 ms, total: 4.62 s
+    Wall time: 2min 14s
+
 
 
 
@@ -2106,48 +2272,48 @@ screener_df.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>ABMD</td>
-      <td>2021-05-13</td>
-      <td>268.529999</td>
-      <td>2648.558973</td>
-      <td>654.683271</td>
-      <td>327.341636</td>
+      <td>REGN</td>
+      <td>2021-06-04</td>
+      <td>505.799988</td>
+      <td>9238.164179</td>
+      <td>2283.532898</td>
+      <td>1141.766449</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>SABR</td>
-      <td>2021-05-12</td>
-      <td>12.210000</td>
-      <td>11930.046852</td>
-      <td>2948.925125</td>
-      <td>1474.462563</td>
+      <td>VRTX</td>
+      <td>2021-06-04</td>
+      <td>209.389999</td>
+      <td>7607.924412</td>
+      <td>1880.562560</td>
+      <td>940.281280</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>EA</td>
-      <td>2021-05-13</td>
-      <td>139.255005</td>
-      <td>1500.221008</td>
-      <td>370.831689</td>
-      <td>185.415845</td>
+      <td>STMP</td>
+      <td>2021-06-04</td>
+      <td>188.279999</td>
+      <td>2031.299375</td>
+      <td>502.106139</td>
+      <td>251.053070</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>CAR</td>
-      <td>2021-05-13</td>
-      <td>75.760002</td>
-      <td>744.766444</td>
-      <td>184.094875</td>
-      <td>92.047437</td>
+      <td>NFLX</td>
+      <td>2021-06-04</td>
+      <td>490.950012</td>
+      <td>21128.776957</td>
+      <td>5222.710523</td>
+      <td>2611.355261</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>STE</td>
-      <td>2021-05-13</td>
-      <td>198.210007</td>
-      <td>1959.601932</td>
-      <td>484.383628</td>
-      <td>242.191814</td>
+      <td>TPX</td>
+      <td>2021-06-04</td>
+      <td>37.900002</td>
+      <td>844.466497</td>
+      <td>208.739203</td>
+      <td>104.369601</td>
     </tr>
   </tbody>
 </table>
@@ -2213,51 +2379,51 @@ eval_df.head(2)
   <tbody>
     <tr>
       <th>0</th>
-      <td>ALXN</td>
-      <td>2021-05-05</td>
-      <td>168.789993</td>
-      <td>11071.685791</td>
-      <td>2736.751398</td>
-      <td>1368.375699</td>
-      <td>Alexion Pharmaceuticals Inc.</td>
-      <td>Alexion Pharmaceuticals</td>
+      <td>REGN</td>
+      <td>2021-06-04</td>
+      <td>505.799988</td>
+      <td>9238.164179</td>
+      <td>2283.532898</td>
+      <td>1141.766449</td>
+      <td>Regeneron Pharmaceuticals Inc.</td>
+      <td>Regeneron Pharmaceuticals</td>
       <td>Biotechnology</td>
-      <td>Alexion Pharmaceuticals Inc is a biopharmaceut...</td>
+      <td>Regeneron Pharmaceuticals Inc is an integrated...</td>
       <td>...</td>
-      <td>ALXN.png</td>
-      <td>Ludwig N. Hantson</td>
+      <td>REGN.png</td>
+      <td>Leonard S. Schleifer</td>
       <td>Nasdaq Global Select</td>
-      <td>2.760821e+10</td>
+      <td>4.603378e+10</td>
       <td>Healthcare</td>
       <td>Healthcare</td>
       <td>Biotechnology</td>
       <td>NaN</td>
-      <td>GILD,REGN,VRTX,BIIB,QGEN,AGIO,RARE,SRPT,BIO.B,JNJ</td>
-      <td>[GILD, REGN, VRTX, BIIB, QGEN, AGIO, RARE, SRP...</td>
+      <td>AMGN,ALNY,BIIB,JNJ,NVS,SNY</td>
+      <td>[AMGN, ALNY, BIIB, JNJ, NVS, SNY]</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>ABMD</td>
-      <td>2021-05-05</td>
-      <td>299.779999</td>
-      <td>2648.558973</td>
-      <td>654.683271</td>
-      <td>327.341636</td>
-      <td>ABIOMED Inc.</td>
-      <td>ABIOMED</td>
-      <td>Medical Devices</td>
-      <td>Abiomed Inc is a medical device company. It pr...</td>
+      <td>VRTX</td>
+      <td>2021-06-04</td>
+      <td>209.389999</td>
+      <td>7607.924412</td>
+      <td>1880.562560</td>
+      <td>940.281280</td>
+      <td>Vertex Pharmaceuticals Incorporated</td>
+      <td>Vertex Pharmaceuticals Incorporated</td>
+      <td>Biotechnology</td>
+      <td>Vertex Pharmaceuticals Inc is engaged in the b...</td>
       <td>...</td>
-      <td>ABMD.png</td>
-      <td>Michael R. Minogue</td>
+      <td>VRTX.png</td>
+      <td>Jeffrey M Leiden</td>
       <td>Nasdaq Global Select</td>
-      <td>1.488763e+10</td>
+      <td>4.783791e+10</td>
       <td>Healthcare</td>
       <td>Healthcare</td>
-      <td>Medical Devices</td>
+      <td>Biotechnology</td>
       <td>NaN</td>
-      <td>TFX,BSX,STXS,ATRC</td>
-      <td>[TFX, BSX, STXS, ATRC]</td>
+      <td>GILD,ABBV,MRK,BMY,JNJ,ENZN,ENTA</td>
+      <td>[GILD, ABBV, MRK, BMY, JNJ, ENZN, ENTA]</td>
     </tr>
   </tbody>
 </table>
@@ -2301,17 +2467,24 @@ print('max(Fiscal Year): {}'.format(fundamental_df['Fiscal Year'].max()))
 ```
 
     Date range in price table:
+
+
+    [Stage 43:======================================================> (59 + 2) / 61]
+
     +----------+----------+
     | min(Date)| max(Date)|
     +----------+----------+
-    |1962-01-02|2021-05-13|
+    |1962-01-02|2022-02-25|
     +----------+----------+
     
     Date range in fundamental table:
-    min(Fiscal Year): 2010
-    max(Fiscal Year): 2019
-    Wall time: 20 s
-    
+    min(Fiscal Year): 2015
+    max(Fiscal Year): 2020
+    CPU times: user 64.4 ms, sys: 69.2 ms, total: 134 ms
+    Wall time: 30.2 s
+
+
+                                                                                    
 
 
 ```python
@@ -2326,13 +2499,18 @@ for df, df_name in zip([company_info_df.rename(columns={'ticker':'Ticker'}), fun
 
 ```
 
-    Count of symbols in table price: 1655
-    Count of symbols in table company_info: 4545
-    Count of symbols in table fundamental: 1655
-    Count of symbols in table growth: 1507
-    Count of symbols in table screener: 35
-    Wall time: 25.5 s
-    
+    [Stage 46:=====================================================>  (58 + 2) / 61]
+
+    Count of symbols in table price: 1776
+    Count of symbols in table company_info: 6368
+    Count of symbols in table fundamental: 1724
+    Count of symbols in table growth: 1412
+    Count of symbols in table screener: 28
+    CPU times: user 112 ms, sys: 9.46 ms, total: 121 ms
+    Wall time: 14 s
+
+
+                                                                                    
 
 
 ```python
@@ -2454,50 +2632,26 @@ results_data_dict_df.head()
 
 ```python
 # remove old documentation
-os.remove('README.md')
+try:
+    os.remove('README.md')
+except:
+    print('no README.md file found')
 # export notebook to markdown for documentation
 !jupyter nbconvert --to markdown capstone_stockscreener.ipynb
 # rename markdown file to README.md
 os.rename('capstone_stockscreener.md', 'README.md')
+# move readme to top folder
+shutil.move('README.md', '../README.md')
 ```
 
-    [NbConvertApp] WARNING | Config option `template_path` not recognized by `MarkdownExporter`.  Did you mean one of: `extra_template_paths, template_name, template_paths`?
-    Traceback (most recent call last):
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\Scripts\jupyter-nbconvert-script.py", line 10, in <module>
-        sys.exit(main())
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\jupyter_core\application.py", line 254, in launch_instance
-        return super(JupyterApp, cls).launch_instance(argv=argv, **kwargs)
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\traitlets\config\application.py", line 845, in launch_instance
-        app.start()
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\nbconvertapp.py", line 350, in start
-        self.convert_notebooks()
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\nbconvertapp.py", line 519, in convert_notebooks
-        self.exporter = cls(config=self.config)
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\exporters\templateexporter.py", line 325, in __init__
-        super().__init__(config=config, **kw)
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\exporters\exporter.py", line 114, in __init__
-        self._init_preprocessors()
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\exporters\templateexporter.py", line 490, in _init_preprocessors
-        super()._init_preprocessors()
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\exporters\exporter.py", line 266, in _init_preprocessors
-        self.register_preprocessor(preprocessor, enabled=True)
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\nbconvert\exporters\exporter.py", line 227, in register_preprocessor
-        preprocessor_cls = import_item(preprocessor)
-      File "C:\Users\Boffmasta\Anaconda3\envs\dataengineering\lib\site-packages\traitlets\utils\importstring.py", line 30, in import_item
-        module = __import__(package, fromlist=[obj])
-    ModuleNotFoundError: No module named 'jupyter_contrib_nbextensions'
-    
+    no README.md file found
+    [NbConvertApp] Converting notebook capstone_stockscreener.ipynb to markdown
+    [NbConvertApp] Writing 73844 bytes to capstone_stockscreener.md
 
 
-    ---------------------------------------------------------------------------
 
-    FileNotFoundError                         Traceback (most recent call last)
 
-    <ipython-input-27-146633a9afa1> in <module>
-          4 get_ipython().system('jupyter nbconvert --to markdown capstone_stockscreener.ipynb')
-          5 # rename markdown file to README.md
-    ----> 6 os.rename('capstone_stockscreener.md', 'README.md')
-    
 
-    FileNotFoundError: [WinError 2] Das System kann die angegebene Datei nicht finden: 'capstone_stockscreener.md' -> 'README.md'
+    '../README.md'
+
 
