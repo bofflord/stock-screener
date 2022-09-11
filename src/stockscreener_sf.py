@@ -1,9 +1,8 @@
-# %%
 # Imports
 import pandas as pd
 import numpy as np
 import simfin as sf
-import os
+import os, sys
 import shutil
 import plotly.express as px
 import configparser
@@ -14,6 +13,11 @@ from get_fundamentals import calculate_annual_pe, calculate_growth_rates, calcul
 
 # for testing only
 from get_fundamentals import get_current_yr_kpi, calculate_growth_summary
+
+# change working directory to script directory
+if sys.argv[0] != '/home/bofflord/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/ipykernel_launcher.py':
+    os.chdir(os.path.dirname(sys.argv[0]))
+    print(f'working directory: {os.getcwd()}')
 
 # read api keys from config
 config = configparser.ConfigParser()
@@ -161,7 +165,7 @@ print('after calculate_sticker_price')
 print_df_shape(growth_df)
 
 # extract latest price 
-curr_price_df = price_df[price_df.groupby('Ticker')['Date'].transform('max') == price_df.Date]
+curr_price_df = price_df[price_df.groupby('Ticker')['Date'].transform('max') == price_df.Date].reset_index(drop=True)
 curr_price_df['last_low_price'] = curr_price_df.Low
 growth_df = growth_df.merge(
     curr_price_df[['Ticker', 'last_low_price']],
@@ -180,7 +184,6 @@ growth_df = growth_df.merge(
 )
 growth_df.head(3)
 
-# %%
 # save outputs to parquet format 
 for df, df_name in zip([fundamental_df, growth_df], ['fundamental', 'growth']):
     current_date = str(pd.to_datetime('today').date())
