@@ -5,3 +5,5 @@ src/get_fundamentals.py
 data/*
 __pycache__
 .vscode/*
+src/__pycache__/*
+data/
