@@ -1,3 +1,4 @@
+#%%
 # Imports
 import pandas as pd
 import numpy as np
@@ -6,7 +7,7 @@ import os, sys
 import shutil
 import plotly.express as px
 import configparser
-import yfinance as yf
+# import yfinance as yf
 from typing import Union
 
 from get_fundamentals import calculate_annual_pe, calculate_growth_rates, calculate_sticker_price, calculate_top5_kpi
@@ -14,20 +15,24 @@ from get_fundamentals import calculate_annual_pe, calculate_growth_rates, calcul
 # for testing only
 from get_fundamentals import get_current_yr_kpi, calculate_growth_summary
 
+
+#%%
 # change working directory to script directory
-if sys.argv[0] != '/home/bofflord/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/ipykernel_launcher.py':
-    os.chdir(os.path.dirname(sys.argv[0]))
-    print(f'working directory: {os.getcwd()}')
+# if sys.argv[0] != '/home/bofflord/01_projects/10_py37_dataeng_venv/.venv/lib/python3.7/site-packages/ipykernel_launcher.py':
+#     os.chdir(os.path.dirname(sys.argv[0]))
+#     print(f'working directory: {os.getcwd()}')
 
 # read api keys from config
 config = configparser.ConfigParser()
 config.read('../data/api_keys.cfg')
-print(config.sections())
+print(f'Config sections: {config.sections()}')
 # set api_key
 sf.set_api_key(api_key=config['simfin']['api_key'])
 # set data directory
 sf.set_data_dir()
 
+
+#%%
 # Extract market, industry information data
 markets_df = sf.load(dataset = 'markets')
 industry_df = sf.load(dataset = 'industries')
@@ -69,6 +74,8 @@ cashflow_df = fund_df_dict['cashflow']
 income_sm_df = fund_df_dict['income']
 balance_st_df = fund_df_dict['balance']
 
+
+#%%
 def filter_symbols(df, symbol_list):
     df = df[df['Ticker'].isin(symbol_list)]
     return df
@@ -184,6 +191,7 @@ growth_df = growth_df.merge(
 )
 growth_df.head(3)
 
+#%%
 # save outputs to parquet format 
 for df, df_name in zip([fundamental_df, growth_df], ['fundamental', 'growth']):
     current_date = str(pd.to_datetime('today').date())
