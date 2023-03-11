@@ -39,10 +39,12 @@ industry_df = sf.load(dataset = 'industries')
 
 # Extract company information
 companies_df = pd.DataFrame()
-for market in markets_df.MarketId.unique():
+market_list = markets_df.MarketId.unique()
+market_list = [market for market in market_list if market not in ['it', 'ca']]
+for market in market_list:
     market_company_df = sf.load(dataset = 'companies', market = market)
     market_company_df['market'] = market
-    companies_df = companies_df.append(market_company_df, ignore_index=True)
+    companies_df = pd.concat([companies_df, market_company_df], ignore_index=True)
 
 companies_df = companies_df.merge(
     industry_df,
@@ -51,6 +53,7 @@ companies_df = companies_df.merge(
 )
 companies_df.head(3)
 
+#%%
 # Extract fundamental data
 variant='annual'
 cashflow_df = pd.DataFrame()
@@ -64,11 +67,11 @@ fund_df_dict = {
 
 }
 
-for market in markets_df.MarketId.unique():
+for market in market_list:
     for fund_report in fund_df_dict.keys():
         df = sf.load(dataset=fund_report, variant='annual', market = market)
         df['market'] = market
-        fund_df_dict[fund_report] = fund_df_dict[fund_report].append(df, ignore_index=True)
+        fund_df_dict[fund_report] = pd.concat([fund_df_dict[fund_report], df], ignore_index=True)
 
 cashflow_df = fund_df_dict['cashflow']
 income_sm_df = fund_df_dict['income']
@@ -106,18 +109,17 @@ fundamental_df = pd.merge(fundamental_df,
                             validate='1:1')
 fundamental_df.head(3)
 
+#%%
 # extract share price data
 price_df = pd.DataFrame()
-for market in markets_df.MarketId.unique():
+for market in market_list:
     market_prices_df = sf.load(dataset = 'shareprices', variant='daily', market = market)
     market_prices_df['market'] = market
-    price_df = price_df.append(market_prices_df, ignore_index=True)
+    price_df = pd.concat([price_df, market_prices_df], ignore_index=True)
 
 
 def limit_two_df_to_same_elements_in_one_column(df1: pd.DataFrame, df2: pd.DataFrame, column: str) -> Union[pd.DataFrame, pd.DataFrame]:
-    """
-    Return transformed copy of two dataframes that share the same elements in a column
-    """
+    '''Return transformed copy of two dataframes that share the same elements in a column'''
     df1 = df1[df1[column].isin(df2[column].unique())].reset_index(drop=True)
     df2 = df2[df2[column].isin(df1[column].unique())].reset_index(drop=True)
     return df1, df2
@@ -127,7 +129,7 @@ fundamental_df, price_df = limit_two_df_to_same_elements_in_one_column(
     price_df, 
     'Ticker'
 )
-
+#%%
 # calculate annual prices from historic price data 
 def calculate_annual_price(df: pd.DataFrame) -> pd.DataFrame:
     df['month'] = pd.to_datetime(df.Date).dt.month

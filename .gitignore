@@ -9,3 +9,8 @@ src/__pycache__/*
 data/
 .vscode/settings.json
 src/.ipynb_checkpoints/*
+data/3_prices/AAPL.csv
+data/3_prices/ATHN.csv
+data/3_prices/AAPL.csv
+data/1_company_info/companies.csv
+src/__pycache__/get_prices.cpython-38.pyc
