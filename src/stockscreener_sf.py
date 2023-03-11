@@ -15,6 +15,10 @@ from get_fundamentals import calculate_annual_pe, calculate_growth_rates, calcul
 # for testing only
 from get_fundamentals import get_current_yr_kpi, calculate_growth_summary
 
+#%%
+# CONFIG
+OUT_OFF_BOUNDS_PERCENTAGE_LIMIT = 3500 # 3500% percentage growth
+
 
 #%%
 # change working directory to script directory
@@ -183,6 +187,12 @@ growth_df = growth_df.merge(
     validate = '1:1'
 )
 growth_df['mos_reached'] = growth_df.mos >= growth_df.last_low_price
+
+growth_df['diff_price_mos'] = growth_df.mos - growth_df.last_low_price
+
+growth_df['diff_price_mos_percentage'] = 100*((growth_df.mos - growth_df.last_low_price)/ growth_df.last_low_price).round(2)
+
+growth_df['out_off_bounds_value'] = growth_df['diff_price_mos_percentage'] > OUT_OFF_BOUNDS_PERCENTAGE_LIMIT
 
 # add company and industry info
 growth_df = growth_df.merge(
